@@ -1,0 +1,83 @@
+{
+  "errors": [],
+  "provinceValue": "江苏",
+  "polygonProvinceValue": "北京",
+  "directProfileName": "蒋金豪",
+  "profileName": "陶锦程",
+  "cityResultText": "南京 · 20 人",
+  "focusedMapZoom": 16,
+  "tabletMetrics": {
+    "viewportWidth": 1024,
+    "documentWidth": 1024,
+    "headerHeight": 74,
+    "mapWidth": 780
+  },
+  "narrowTabletMetrics": {
+    "viewportWidth": 768,
+    "documentWidth": 768,
+    "mapWidth": 728,
+    "compactMarkers": 0
+  },
+  "overlaps": {
+    "desktopCities": 0,
+    "desktopSchools": 0,
+    "mobileCities": 0,
+    "mobileSchools": 0
+  },
+  "overlapDetails": {
+    "mobileSchools": []
+  },
+  "mobileMetrics": {
+    "viewportWidth": 390,
+    "documentWidth": 390,
+    "schoolMarkers": 9,
+    "compactCityMarkerCount": 9
+  },
+  "profileEditing": {
+    "saved": true,
+    "persistedAfterReload": true,
+    "mapLinkCoordinates": {
+      "latitude": "31.305300",
+      "longitude": "120.640100"
+    },
+    "autoMatchedCampus": {
+      "campus": "扬子津校区",
+      "address": "江苏省扬州市邗江区华扬西路196号",
+      "latitude": "32.344390",
+      "longitude": "119.405650"
+    },
+    "unknownCampusBlocked": true,
+    "shiCampus": {
+      "campus": "泰州校区",
+      "city": "泰州",
+      "address": "江苏省泰州市海陵区匡时路6号",
+      "latitude": "32.380690",
+      "longitude": "119.892880"
+    },
+    "shiCampusIndexLabels": [
+      "汉中门校区",
+      "泰州校区",
+      "仙林校区"
+    ],
+    "shiMapMarkerLabel": "南京中医药大学，泰州校区，1 位同学",
+    "shiCountryPinLabel": "施翰尧，南京中医药大学，泰州校区",
+    "reloadedShiPinLabel": "施翰尧，南京中医药大学，泰州校区",
+    "taizhouCityLabel": "泰州，1 位同学",
+    "taizhouCityMarkerBox": {
+      "x": 779,
+      "y": 600.4375,
+      "width": 59,
+      "height": 28
+    },
+    "mapUpdated": "扬州大学，扬子津校区，1 位同学",
+    "autoLockedAfterSave": true,
+    "lockedLocationText": "江苏省扬州市邗江区华扬西路196号\n32.34439°N · 119.40565°E\n校区位置已锁定，个人主页和地图持续使用此坐标。",
+    "beforeMapPick": "32.344390",
+    "afterMapPick": "32.346373",
+    "mobileEditorMetrics": {
+      "viewportWidth": 390,
+      "documentWidth": 390,
+      "dialogWidth": 390
+    }
+  }
+}

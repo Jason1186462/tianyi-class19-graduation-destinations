@@ -1,0 +1,24 @@
+{
+  "name": "tianyi-graduation-destinations",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4173",
+    "build": "vite build",
+    "build:static": "vite build && node scripts/make-standalone.mjs",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "verify:data": "node scripts/verify-data.mjs",
+    "update:campus-presets": "node scripts/generate-campus-presets.mjs",
+    "qa:ui": "node scripts/qa-final.mjs"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.65.1",
+    "vite": "^8.3.8"
+  }
+}
