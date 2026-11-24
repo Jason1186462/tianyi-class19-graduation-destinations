@@ -548,6 +548,56 @@ if (!taizhouCityVisible || !taizhouCityLabel.includes("泰州，1 位同学")) {
 await editorPage.screenshot({
   path: path.join(outputDir, "desktop-profile-shi-city-index.png"),
 });
+await editorPage.setViewportSize({ width: 320, height: 800 });
+await editorPage.reload({ waitUntil: "domcontentloaded", timeout: 15000 });
+await editorPage.waitForTimeout(1200);
+const compactPinBox = await editorPage
+  .locator(".leaflet-selected-student-pin")
+  .boundingBox();
+const compactMapBox = await editorPage.locator(".map-canvas").boundingBox();
+const compactPinInsideMap =
+  compactPinBox &&
+  compactMapBox &&
+  compactPinBox.x >= compactMapBox.x &&
+  compactPinBox.x + compactPinBox.width <= compactMapBox.x + compactMapBox.width + 1;
+if (!compactPinInsideMap) {
+  throw new Error(
+    `Mobile selected student pin is clipped: ${JSON.stringify({
+      compactPinBox,
+      compactMapBox,
+    })}`,
+  );
+}
+await editorPage.locator(".recent-person").first().click();
+await editorPage.waitForTimeout(650);
+const mobileInspectorLayering = await editorPage.evaluate(() => {
+  const inspector = document.querySelector(".student-inspector");
+  const zoomControls = document.querySelector(".leaflet-zoom-controls");
+  const inspectorRect = inspector.getBoundingClientRect();
+  return {
+    inspectorZ: Number(getComputedStyle(inspector).zIndex),
+    zoomZ: Number(getComputedStyle(zoomControls).zIndex),
+    topElementAtInspector:
+      document.elementFromPoint(
+        window.innerWidth / 2,
+        inspectorRect.top + 40,
+      )?.className ?? "",
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  };
+});
+if (
+  mobileInspectorLayering.inspectorZ <= mobileInspectorLayering.zoomZ ||
+  !String(mobileInspectorLayering.topElementAtInspector).includes("inspector") ||
+  mobileInspectorLayering.documentWidth > mobileInspectorLayering.viewportWidth
+) {
+  throw new Error(
+    `Mobile inspector still overlaps map controls: ${JSON.stringify(mobileInspectorLayering)}`,
+  );
+}
+await editorPage.screenshot({
+  path: path.join(outputDir, "mobile-inspector-fixed.png"),
+});
 await editorContext.close();
 
 await writeFile(
@@ -589,6 +639,8 @@ await writeFile(
         reloadedShiPinLabel,
         taizhouCityLabel,
         taizhouCityMarkerBox,
+        compactPinInsideMap,
+        mobileInspectorLayering,
         mapUpdated: selectedMarkerLabel,
         autoLockedAfterSave: autoMapVisible && Boolean(autoSelectedMarkerLabel),
         lockedLocationText,

@@ -797,17 +797,22 @@ export default function LeafletChinaMap({
       return;
     }
 
+    const compactAnchorX = 66;
     const icon = L.divIcon({
-      className: "leaflet-selected-student-pin",
-      html: `
-        <span class="leaflet-selected-student-card">
-          <i></i>
-          <b>${selectedStudent.name}</b>
-          <small>${selectedStudent.campus}</small>
-        </span>
-      `,
-      iconSize: [210, 42],
-      iconAnchor: [105, 38],
+      className: `leaflet-selected-student-pin ${
+        compactMarkers ? "is-compact" : ""
+      }`,
+      html: compactMarkers
+        ? `<span class="leaflet-selected-student-compact">${selectedStudent.name.slice(-1)}</span>`
+        : `
+          <span class="leaflet-selected-student-card">
+            <i></i>
+            <b>${selectedStudent.name}</b>
+            <small>${selectedStudent.campus}</small>
+          </span>
+        `,
+      iconSize: compactMarkers ? [30, 30] : [210, 42],
+      iconAnchor: compactMarkers ? [compactAnchorX, 27] : [105, 38],
     });
     const marker = L.marker(selectedStudent.coordinates, {
       icon,
@@ -834,6 +839,7 @@ export default function LeafletChinaMap({
     }
   }, [
     activeCity,
+    compactMarkers,
     selectedProvince,
     selectedStudent?.campus,
     selectedStudent?.coordinates,
@@ -841,6 +847,7 @@ export default function LeafletChinaMap({
     selectedStudent?.name,
     selectedStudent?.province,
     selectedStudent?.school,
+    zoom,
   ]);
 
   useEffect(() => {

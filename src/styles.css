@@ -1001,6 +1001,22 @@ select:focus-visible,
   text-overflow: ellipsis;
 }
 
+.leaflet-selected-student-compact {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 2px solid rgba(255, 253, 247, 0.98);
+  border-radius: 50%;
+  background: var(--mineral);
+  box-shadow:
+    0 0 0 4px rgba(75, 114, 151, 0.16),
+    0 6px 15px rgba(33, 48, 42, 0.22);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .map-school-tooltip {
   padding: 2px 5px !important;
   border: 0 !important;
@@ -2213,7 +2229,7 @@ select:focus-visible,
 
 .profile-editor-backdrop {
   position: fixed;
-  z-index: 100;
+  z-index: 700;
   inset: 0;
   display: grid;
   place-items: center;
@@ -3594,7 +3610,7 @@ select:focus-visible,
 
 .toast {
   position: fixed;
-  z-index: 90;
+  z-index: 800;
   right: 24px;
   bottom: 22px;
   max-width: min(420px, calc(100vw - 32px));
@@ -3695,7 +3711,7 @@ select:focus-visible,
 
   .student-inspector {
     position: fixed;
-    z-index: 60;
+    z-index: 650;
     top: 0;
     right: 0;
     width: min(390px, 94vw);
@@ -3717,7 +3733,7 @@ select:focus-visible,
 
   .mobile-inspector-backdrop {
     position: fixed;
-    z-index: 55;
+    z-index: 640;
     inset: 0;
     display: block;
     background: rgba(24, 39, 35, 0.22);
@@ -4697,6 +4713,54 @@ select:focus-visible,
 
   .directory-table tbody tr {
     height: 53px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mobile-province-strip {
+    padding-right: 34px;
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+  }
+
+  .recent-people {
+    overflow-x: auto;
+    padding-right: 22px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 22px),
+      transparent 100%
+    );
+  }
+
+  .recent-people::-webkit-scrollbar {
+    display: none;
+  }
+
+  .recent-person {
+    flex: 0 0 118px;
+  }
+
+  .recent-person small {
+    max-width: 70px;
+  }
+
+  .strip-pagination {
+    display: none;
+  }
+
+  .leaflet-zoom-controls {
+    right: 8px;
+  }
+
+  .leaflet-breadcrumbs {
+    left: 8px;
   }
 }
 
