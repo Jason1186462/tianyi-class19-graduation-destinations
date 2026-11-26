@@ -15,6 +15,7 @@ const DEFAULT_ZOOM = 4;
 const AUTO_COUNTRY_ZOOM = 4.25;
 const AUTO_PROVINCE_ZOOM = 5.25;
 const AUTO_CITY_ZOOM = 9.25;
+const AUTO_CITY_EXIT_ZOOM = 8.25;
 
 function normalizeProvinceName(name) {
   return name
@@ -67,6 +68,7 @@ export default function LeafletChinaMap({
   focusRequest,
   onProvinceSelect,
   onCitySelect,
+  onAutoRegionChange,
   onStudentOpen,
   schoolOpenRequest,
   onZoomChange,
@@ -89,9 +91,12 @@ export default function LeafletChinaMap({
   const handlersRef = useRef({
     onProvinceSelect,
     onCitySelect,
+    onAutoRegionChange,
     onStudentOpen,
     onResetMapContext,
   });
+  const suppressNextFocusRef = useRef(false);
+  const autoRegionRequestLockRef = useRef(false);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [tilesFailed, setTilesFailed] = useState(false);
   const [compactMarkers, setCompactMarkers] = useState(
@@ -116,10 +121,39 @@ export default function LeafletChinaMap({
   }, [filteredStudents]);
   const resolvedCityCoordinatesRef = useRef(resolvedCityCoordinates);
   resolvedCityCoordinatesRef.current = resolvedCityCoordinates;
+  const cityRegionIndex = useMemo(() => {
+    const grouped = new Map();
+    provinceStudents.forEach((student) => {
+      const entry = grouped.get(student.city) ?? {
+        city: student.city,
+        province: student.province,
+        points: [],
+      };
+      entry.points.push(student.coordinates);
+      grouped.set(student.city, entry);
+    });
+    return new Map(
+      [...grouped.entries()].map(([city, entry]) => {
+        const staticCoordinates = cityCoordinates[city];
+        const coordinates = staticCoordinates
+          ? [staticCoordinates[1], staticCoordinates[0]]
+          : [
+              entry.points.reduce((sum, point) => sum + point[0], 0) /
+                entry.points.length,
+              entry.points.reduce((sum, point) => sum + point[1], 0) /
+                entry.points.length,
+            ];
+        return [city, { city, province: entry.province, coordinates }];
+      }),
+    );
+  }, [provinceStudents]);
+  const cityRegionIndexRef = useRef(cityRegionIndex);
+  cityRegionIndexRef.current = cityRegionIndex;
 
   handlersRef.current = {
     onProvinceSelect,
     onCitySelect,
+    onAutoRegionChange,
     onStudentOpen,
     onResetMapContext,
   };
@@ -152,41 +186,68 @@ export default function LeafletChinaMap({
     return matchedProvince ?? nearestProvince?.province ?? null;
   }
 
-  function nearestCityToCenter(center) {
+  function nearestCityToCenter(center, provinceName = "") {
     let nearest = null;
-    cityEntriesRef.current.forEach(([city]) => {
-      const coordinates = resolvedCityCoordinatesRef.current[city];
-      if (!coordinates) return;
-      const distance = L.latLng(coordinates[1], coordinates[0]).distanceTo(center);
-      if (!nearest || distance < nearest.distance) nearest = { city, distance };
+    cityRegionIndexRef.current.forEach((entry) => {
+      if (
+        provinceName &&
+        provinceName !== "全部" &&
+        entry.province !== provinceName
+      ) {
+        return;
+      }
+      const distance = L.latLng(
+        entry.coordinates[0],
+        entry.coordinates[1],
+      ).distanceTo(center);
+      if (!nearest || distance < nearest.distance) {
+        nearest = { city: entry.city, distance };
+      }
     });
-    return nearest?.distance <= 220000 ? nearest.city : null;
+    return nearest?.city ?? null;
   }
 
   function applyAutomaticMapLevel(map, nextZoom) {
     const context = mapContextRef.current;
     if (nextZoom <= AUTO_COUNTRY_ZOOM) {
       if (context.selectedProvince !== "全部" || context.activeCity) {
-        handlersRef.current.onResetMapContext?.();
+        if (autoRegionRequestLockRef.current) return;
+        autoRegionRequestLockRef.current = true;
+        suppressNextFocusRef.current = true;
+        handlersRef.current.onAutoRegionChange?.({
+          province: "全部",
+          city: null,
+        });
       }
       return;
     }
+    if (nextZoom < AUTO_PROVINCE_ZOOM) return;
+
+    const center = map.getCenter();
+    const province =
+      provinceAtCenter(center) ||
+      (context.selectedProvince !== "全部"
+        ? context.selectedProvince
+        : null);
+    if (!province) return;
+
+    const shouldShowCity =
+      nextZoom >= AUTO_CITY_ZOOM ||
+      (Boolean(context.activeCity) && nextZoom >= AUTO_CITY_EXIT_ZOOM);
+    const city = shouldShowCity
+      ? nearestCityToCenter(center, province)
+      : null;
     if (
-      nextZoom >= AUTO_PROVINCE_ZOOM &&
-      context.selectedProvince === "全部"
+      province !== context.selectedProvince ||
+      city !== context.activeCity
     ) {
-      const province = provinceAtCenter(map.getCenter());
-      if (province) handlersRef.current.onProvinceSelect(province);
-      return;
-    }
-    if (
-      nextZoom >= AUTO_CITY_ZOOM &&
-      !context.activeCity &&
-      context.selectedProvince !== "全部"
-    ) {
-      const city = nearestCityToCenter(map.getCenter());
-      if (city) handlersRef.current.onCitySelect(city);
-      return;
+      if (autoRegionRequestLockRef.current) return;
+      autoRegionRequestLockRef.current = true;
+      suppressNextFocusRef.current = true;
+      handlersRef.current.onAutoRegionChange?.({
+        province,
+        city,
+      });
     }
   }
 
@@ -481,12 +542,13 @@ export default function LeafletChinaMap({
         declutterSchoolMarkers();
       });
     });
-    map.on("moveend", () =>
+    map.on("moveend", () => {
+      applyAutomaticMapLevel(map, map.getZoom());
       window.requestAnimationFrame(() => {
         declutterCityMarkers();
         declutterSchoolMarkers();
-      }),
-    );
+      });
+    });
     map.on("click", (event) => {
       const groups = schoolGroupsRef.current;
       const clickPoint = map.latLngToContainerPoint(event.latlng);
@@ -634,12 +696,19 @@ export default function LeafletChinaMap({
     const map = mapRef.current;
     if (!map) return;
     if (focusRequest?.mode === "school") {
+      autoRegionRequestLockRef.current = false;
+      suppressNextFocusRef.current = false;
       const coordinates = focusRequest.coordinates;
       if (coordinates) {
         map.flyTo([coordinates[0], coordinates[1]], 16, {
           duration: 0.65,
         });
       }
+      return;
+    }
+    if (suppressNextFocusRef.current) {
+      autoRegionRequestLockRef.current = false;
+      suppressNextFocusRef.current = false;
       return;
     }
     if (activeCity && schoolGroups.length) {

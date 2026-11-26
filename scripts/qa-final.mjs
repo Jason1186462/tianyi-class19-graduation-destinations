@@ -657,9 +657,7 @@ const zoomState = () =>
       (element) => element.textContent.trim(),
     ),
     hasCityRail: Boolean(document.querySelector(".map-city-rail")),
-    activeCity: [
-      ...document.querySelectorAll(".map-city-rail .is-active"),
-    ].map((element) => element.innerText.replace(/\s+/g, " ").trim()),
+    schoolMarkers: document.querySelectorAll(".leaflet-school-marker-tile").length,
     hasCountryStrip: Boolean(document.querySelector(".recent-strip")),
   }));
 const zoomIn = zoomPage.getByRole("button", { name: "放大地图" });
@@ -680,18 +678,47 @@ if (
 ) {
   throw new Error(`Zoom-in did not enter a province: ${JSON.stringify(automaticZoomLevels)}`);
 }
+const automaticProvinceState = automaticZoomLevels;
+const initialProvince = automaticZoomLevels.breadcrumbs.at(-1);
+const zoomMapBox = await zoomPage.locator(".leaflet-map-canvas").boundingBox();
+await zoomPage.mouse.move(
+  zoomMapBox.x + zoomMapBox.width * 0.7,
+  zoomMapBox.y + zoomMapBox.height * 0.5,
+);
+await zoomPage.mouse.down();
+await zoomPage.mouse.move(
+  zoomMapBox.x + zoomMapBox.width * 0.2,
+  zoomMapBox.y + zoomMapBox.height * 0.5,
+  { steps: 20 },
+);
+await zoomPage.mouse.up();
+await zoomPage.waitForTimeout(1100);
+automaticZoomLevels = await zoomState();
+const pannedProvince = automaticZoomLevels.breadcrumbs.at(-1);
+if (
+  automaticZoomLevels.breadcrumbs.length < 2 ||
+  pannedProvince === initialProvince
+) {
+  throw new Error(
+    `Panning did not update the province: ${JSON.stringify({
+      initialProvince,
+      automaticZoomLevels,
+    })}`,
+  );
+}
 for (
   let index = 0;
-  index < 14 && automaticZoomLevels.activeCity.length === 0;
+  index < 16 && automaticZoomLevels.schoolMarkers === 0;
   index += 1
 ) {
-  await zoomIn.click({ force: true });
+  await zoomPage.getByRole("button", { name: "放大地图" }).click({ force: true });
   await zoomPage.waitForTimeout(500);
   automaticZoomLevels = await zoomState();
 }
-if (automaticZoomLevels.activeCity.length === 0) {
+if (automaticZoomLevels.schoolMarkers === 0) {
   throw new Error(`Zoom-in did not enter a city: ${JSON.stringify(automaticZoomLevels)}`);
 }
+const automaticCityState = automaticZoomLevels;
 for (
   let index = 0;
   index < 30 && automaticZoomLevels.zoom > 4.25;
@@ -724,6 +751,8 @@ await writeFile(
       profileName,
       cityResultText,
       focusedMapZoom,
+      automaticProvinceState,
+      automaticCityState,
       automaticZoomLevels,
       tabletMetrics,
       narrowTabletMetrics,

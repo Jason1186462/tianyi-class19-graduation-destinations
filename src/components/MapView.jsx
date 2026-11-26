@@ -152,6 +152,13 @@ export default function MapView({
     onProvinceSelect("全部");
   }
 
+  function handleAutoRegionChange({ province = "全部", city = null }) {
+    setFocusRequest(null);
+    setSchoolOpenRequest(null);
+    setActiveCity(city);
+    onProvinceSelect(province || "全部");
+  }
+
   return (
     <main className="map-main">
       <div className="map-heading-row">
@@ -251,6 +258,7 @@ export default function MapView({
           focusRequest={externalFocusRequest ?? focusRequest}
           onProvinceSelect={handleProvinceChange}
           onCitySelect={focusCity}
+          onAutoRegionChange={handleAutoRegionChange}
           onResetMapContext={resetMapContext}
           onStudentOpen={(studentId) => {
             onSelectStudent(studentId);

@@ -6,13 +6,33 @@
   "profileName": "陶锦程",
   "cityResultText": "南京 · 20 人",
   "focusedMapZoom": 16,
+  "automaticProvinceState": {
+    "zoom": 5.5,
+    "breadcrumbs": [
+      "全国",
+      "陕西"
+    ],
+    "hasCityRail": true,
+    "schoolMarkers": 0,
+    "hasCountryStrip": false
+  },
+  "automaticCityState": {
+    "zoom": 9.3,
+    "breadcrumbs": [
+      "全国",
+      "江苏"
+    ],
+    "hasCityRail": true,
+    "schoolMarkers": 2,
+    "hasCountryStrip": false
+  },
   "automaticZoomLevels": {
-    "zoom": 3.5,
+    "zoom": 4,
     "breadcrumbs": [
       "全国"
     ],
     "hasCityRail": false,
-    "activeCity": [],
+    "schoolMarkers": 0,
     "hasCountryStrip": true
   },
   "tabletMetrics": {
@@ -78,7 +98,7 @@
     "taizhouCityLabel": "泰州，1 位同学",
     "taizhouCityMarkerBox": {
       "x": 779,
-      "y": 600.4375,
+      "y": 586.4375,
       "width": 59,
       "height": 28
     },
