@@ -98,7 +98,7 @@ const beijingValue = await page.locator(".province-select select").inputValue();
 if (beijingValue !== "北京") throw new Error(`Beijing province switch failed: ${beijingValue}`);
 await page.getByRole("button", { name: "全国", exact: true }).click();
 await page.waitForTimeout(700);
-await page.locator('path[data-province="北京"]').dispatchEvent("click");
+await page.locator('path[data-province="北京"]').click({ force: true });
 await page.waitForTimeout(700);
 const polygonProvinceValue = await page.locator(".province-select select").inputValue();
 if (polygonProvinceValue !== "北京") {
@@ -108,7 +108,7 @@ await page.getByRole("button", { name: "全国", exact: true }).click();
 await page.waitForTimeout(700);
 
 await page.locator(".leaflet-province-count").filter({ hasText: "39" }).click();
-await page.waitForTimeout(1100);
+await page.waitForTimeout(1900);
 console.log("jiangsu-selected");
 await page.screenshot({ path: path.join(outputDir, "desktop-province.png") });
 
@@ -379,7 +379,7 @@ if (await editorPage.getByLabel("地图链接或坐标").inputValue()) {
 await editorPage.getByLabel("个人寄语（选填）").fill("愿我们各自努力，顶峰相见。");
 await editorPage.screenshot({ path: path.join(outputDir, "desktop-profile-editor-filled.png") });
 await saveProfileButton.click();
-await editorPage.waitForTimeout(1000);
+await editorPage.waitForTimeout(1600);
 
 if (await editorPage.locator(".profile-editor-dialog").count()) {
   throw new Error("Profile editor did not close after saving.");
@@ -679,15 +679,17 @@ if (
   throw new Error(`Zoom-in did not enter a province: ${JSON.stringify(automaticZoomLevels)}`);
 }
 const automaticProvinceState = automaticZoomLevels;
-const initialProvince = automaticZoomLevels.breadcrumbs.at(-1);
+await zoomPage.locator(".province-select select").selectOption("江苏");
+await zoomPage.waitForTimeout(1200);
+const initialProvince = "江苏";
 const zoomMapBox = await zoomPage.locator(".leaflet-map-canvas").boundingBox();
 await zoomPage.mouse.move(
-  zoomMapBox.x + zoomMapBox.width * 0.7,
+  zoomMapBox.x + zoomMapBox.width * 0.45,
   zoomMapBox.y + zoomMapBox.height * 0.5,
 );
 await zoomPage.mouse.down();
 await zoomPage.mouse.move(
-  zoomMapBox.x + zoomMapBox.width * 0.2,
+  zoomMapBox.x + zoomMapBox.width * 0.65,
   zoomMapBox.y + zoomMapBox.height * 0.5,
   { steps: 20 },
 );
@@ -697,7 +699,7 @@ automaticZoomLevels = await zoomState();
 const pannedProvince = automaticZoomLevels.breadcrumbs.at(-1);
 if (
   automaticZoomLevels.breadcrumbs.length < 2 ||
-  pannedProvince === initialProvince
+  pannedProvince !== "安徽"
 ) {
   throw new Error(
     `Panning did not update the province: ${JSON.stringify({
@@ -739,6 +741,10 @@ await zoomPage.screenshot({
   path: path.join(outputDir, "desktop-auto-zoom-country.png"),
 });
 await zoomContext.close();
+
+if (errors.length) {
+  throw new Error(`Runtime errors detected: ${JSON.stringify(errors, null, 2)}`);
+}
 
 await writeFile(
   path.join(outputDir, "qa-report.json"),

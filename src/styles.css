@@ -957,6 +957,7 @@ select:focus-visible,
 .leaflet-selected-student-pin {
   background: transparent;
   border: 0;
+  pointer-events: none !important;
 }
 
 .leaflet-selected-student-card {

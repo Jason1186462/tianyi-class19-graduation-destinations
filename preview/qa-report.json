@@ -10,24 +10,24 @@
     "zoom": 5.5,
     "breadcrumbs": [
       "全国",
-      "陕西"
+      "甘肃"
     ],
     "hasCityRail": true,
     "schoolMarkers": 0,
     "hasCountryStrip": false
   },
   "automaticCityState": {
-    "zoom": 9.3,
+    "zoom": 9.5,
     "breadcrumbs": [
       "全国",
-      "江苏"
+      "安徽"
     ],
     "hasCityRail": true,
-    "schoolMarkers": 2,
+    "schoolMarkers": 1,
     "hasCountryStrip": false
   },
   "automaticZoomLevels": {
-    "zoom": 4,
+    "zoom": 3.5,
     "breadcrumbs": [
       "全国"
     ],

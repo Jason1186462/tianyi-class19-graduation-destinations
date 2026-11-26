@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import {
   classSummary,
   provinceCounts,
@@ -5,6 +6,7 @@ import {
   sortedSchools,
   students,
 } from "../src/lib/data.js";
+import { findProvinceAtPoint } from "../src/lib/geo.js";
 import {
   findCampusPreset,
   getCampusPresets,
@@ -23,6 +25,35 @@ const expected = {
 };
 
 const failures = [];
+const provinceGeoData = JSON.parse(
+  await readFile(new URL("../china-provinces.json", import.meta.url), "utf8"),
+);
+const provinceFeatures = provinceGeoData.features.map((feature) => ({
+  ...feature,
+  province: feature.properties.name
+    .replace("特别行政区", "")
+    .replace("维吾尔自治区", "")
+    .replace("壮族自治区", "")
+    .replace("回族自治区", "")
+    .replace("自治区", "")
+    .replace("省", "")
+    .replace("市", ""),
+}));
+const provincePointChecks = [
+  ["安徽", { lat: 31.8206, lng: 117.2272 }],
+  ["安徽", { lat: 32.3018, lng: 118.3165 }],
+  ["江苏", { lat: 32.0603, lng: 118.7969 }],
+  ["江苏", { lat: 32.3942, lng: 119.4129 }],
+  ["湖北", { lat: 30.5928, lng: 114.3055 }],
+];
+for (const [expectedProvince, point] of provincePointChecks) {
+  const actualProvince = findProvinceAtPoint(provinceFeatures, point);
+  if (actualProvince !== expectedProvince) {
+    failures.push(
+      `Province point check: expected ${expectedProvince}, got ${actualProvince}`,
+    );
+  }
+}
 for (const [key, value] of Object.entries(expected)) {
   const actual = classSummary[key];
   if (JSON.stringify(actual) !== JSON.stringify(value)) {
@@ -102,6 +133,7 @@ if (failures.length) {
 } else {
   console.log("Data verified:", classSummary);
   console.log("Province counts:", provinceCounts);
+  console.log("Province boundary checks:", provincePointChecks.length);
   console.log(`Campus indexes: ${campusPresetCount}`);
   console.log("Top cities:", sortedCities.slice(0, 8));
   console.log("Top schools:", sortedSchools.slice(0, 12));

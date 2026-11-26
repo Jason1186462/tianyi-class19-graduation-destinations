@@ -157,6 +157,12 @@ export default function MapView({
     setSchoolOpenRequest(null);
     setActiveCity(city);
     onProvinceSelect(province || "全部");
+    if (city) {
+      const firstStudent = students.find(
+        (student) => student.province === province && student.city === city,
+      );
+      if (firstStudent) onSelectStudent(firstStudent.id);
+    }
   }
 
   return (

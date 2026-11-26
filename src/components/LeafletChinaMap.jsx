@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import geoData from "../../china-provinces.json";
 import { cityCoordinates, origin } from "../data/students";
 import { countBy } from "../lib/data";
+import { findProvinceAtPoint } from "../lib/geo";
 import { groupStudentsByCampus } from "../lib/profiles";
 import { colorForProvince } from "../lib/theme";
 import { avatarPresets } from "./Avatar";
@@ -160,30 +161,11 @@ export default function LeafletChinaMap({
   mapContextRef.current = { selectedProvince, activeCity };
 
   function provinceAtCenter(center) {
-    let matchedProvince = null;
-    let smallestSpan = Number.POSITIVE_INFINITY;
-    let nearestProvince = null;
-    provinceLayerRef.current?.eachLayer((layer) => {
-      const province = layer.feature?.province;
-      if (!province || !provinceCounts[province]) return;
-      const bounds = layer.getBounds?.();
-      if (!bounds) return;
-      const boundsCenter = bounds.getCenter();
-      const distance = boundsCenter.distanceTo(center);
-      if (!nearestProvince || distance < nearestProvince.distance) {
-        nearestProvince = { province, distance };
-      }
-      if (!bounds.contains(center)) return;
-      const northEast = bounds.getNorthEast();
-      const southWest = bounds.getSouthWest();
-      const span =
-        Math.abs(northEast.lat - southWest.lat) +
-        Math.abs(northEast.lng - southWest.lng);
-      if (span >= smallestSpan) return;
-      smallestSpan = span;
-      matchedProvince = province;
-    });
-    return matchedProvince ?? nearestProvince?.province ?? null;
+    return findProvinceAtPoint(
+      provinceFeatures,
+      center,
+      mapContextRef.current.selectedProvince,
+    );
   }
 
   function nearestCityToCenter(center, provinceName = "") {
@@ -761,23 +743,6 @@ export default function LeafletChinaMap({
   }, [provinceCounts, provinceFeatures, selectedProvince]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    const provinceLayer = provinceLayerRef.current;
-    if (!map || !provinceLayer) return;
-    provinceLayer.eachLayer((layer) => {
-      layer.closeTooltip();
-      layer.unbindTooltip();
-      const province = layer.feature.province;
-      const count = provinceCounts[province] ?? 0;
-      if (selectedProvince !== "全部" || activeCity) return;
-      layer.bindTooltip(
-        count ? `${province} · ${count} 位同学` : province,
-        { sticky: true, className: "map-leaflet-tooltip" },
-      );
-    });
-  }, [activeCity, provinceCounts, selectedProvince]);
-
-  useEffect(() => {
     const layer = provinceMarkerLayerRef.current;
     if (!layer) return;
     layer.clearLayers();
@@ -964,11 +929,10 @@ export default function LeafletChinaMap({
     });
     const marker = L.marker(selectedStudent.coordinates, {
       icon,
-      keyboard: true,
+      keyboard: false,
       zIndexOffset: 600,
     })
-      .addTo(layer)
-      .on("click", () => handlersRef.current.onStudentOpen(selectedStudent.id));
+      .addTo(layer);
     marker.bindTooltip(
       `${selectedStudent.name} · ${selectedStudent.school} · ${selectedStudent.campus}`,
       {
@@ -980,7 +944,7 @@ export default function LeafletChinaMap({
     const element = marker.getElement();
     if (element) {
       element.dataset.avatar = selectedStudent.avatar || "auto";
-      element.setAttribute("role", "button");
+      element.setAttribute("role", "img");
       element.setAttribute(
         "aria-label",
         `${selectedStudent.name}，${selectedStudent.school}，${selectedStudent.campus}`,
