@@ -285,7 +285,11 @@ export default function DirectoryView({
                   >
                     <td>
                       <div className="table-person">
-                        <Avatar name={student.name} size={38} />
+                        <Avatar
+                          name={student.name}
+                          avatarId={student.avatar}
+                          size={38}
+                        />
                         <span>{student.name}</span>
                       </div>
                     </td>
@@ -316,7 +320,11 @@ export default function DirectoryView({
                   key={student.id}
                   onClick={() => selectRow(student)}
                 >
-                  <Avatar name={student.name} size={42} />
+                  <Avatar
+                    name={student.name}
+                    avatarId={student.avatar}
+                    size={42}
+                  />
                   <span className="mobile-row-primary">
                     <b>{student.name}</b>
                     <small>{student.school}</small>

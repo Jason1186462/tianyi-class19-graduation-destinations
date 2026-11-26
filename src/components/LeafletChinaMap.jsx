@@ -6,11 +6,15 @@ import { cityCoordinates, origin } from "../data/students";
 import { countBy } from "../lib/data";
 import { groupStudentsByCampus } from "../lib/profiles";
 import { colorForProvince } from "../lib/theme";
+import { avatarPresets } from "./Avatar";
 import { ChevronRightIcon, LocateIcon, MinusIcon, PlusIcon } from "./Icons";
 
 const CHINA_BOUNDS = L.latLngBounds([18, 73], [54, 135]);
 const DEFAULT_CENTER = [34.6, 104.2];
 const DEFAULT_ZOOM = 4;
+const AUTO_COUNTRY_ZOOM = 4.25;
+const AUTO_PROVINCE_ZOOM = 5.25;
+const AUTO_CITY_ZOOM = 9.25;
 
 function normalizeProvinceName(name) {
   return name
@@ -86,6 +90,7 @@ export default function LeafletChinaMap({
     onProvinceSelect,
     onCitySelect,
     onStudentOpen,
+    onResetMapContext,
   });
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [tilesFailed, setTilesFailed] = useState(false);
@@ -112,8 +117,78 @@ export default function LeafletChinaMap({
   const resolvedCityCoordinatesRef = useRef(resolvedCityCoordinates);
   resolvedCityCoordinatesRef.current = resolvedCityCoordinates;
 
-  handlersRef.current = { onProvinceSelect, onCitySelect, onStudentOpen };
+  handlersRef.current = {
+    onProvinceSelect,
+    onCitySelect,
+    onStudentOpen,
+    onResetMapContext,
+  };
   mapContextRef.current = { selectedProvince, activeCity };
+
+  function provinceAtCenter(center) {
+    let matchedProvince = null;
+    let smallestSpan = Number.POSITIVE_INFINITY;
+    let nearestProvince = null;
+    provinceLayerRef.current?.eachLayer((layer) => {
+      const province = layer.feature?.province;
+      if (!province || !provinceCounts[province]) return;
+      const bounds = layer.getBounds?.();
+      if (!bounds) return;
+      const boundsCenter = bounds.getCenter();
+      const distance = boundsCenter.distanceTo(center);
+      if (!nearestProvince || distance < nearestProvince.distance) {
+        nearestProvince = { province, distance };
+      }
+      if (!bounds.contains(center)) return;
+      const northEast = bounds.getNorthEast();
+      const southWest = bounds.getSouthWest();
+      const span =
+        Math.abs(northEast.lat - southWest.lat) +
+        Math.abs(northEast.lng - southWest.lng);
+      if (span >= smallestSpan) return;
+      smallestSpan = span;
+      matchedProvince = province;
+    });
+    return matchedProvince ?? nearestProvince?.province ?? null;
+  }
+
+  function nearestCityToCenter(center) {
+    let nearest = null;
+    cityEntriesRef.current.forEach(([city]) => {
+      const coordinates = resolvedCityCoordinatesRef.current[city];
+      if (!coordinates) return;
+      const distance = L.latLng(coordinates[1], coordinates[0]).distanceTo(center);
+      if (!nearest || distance < nearest.distance) nearest = { city, distance };
+    });
+    return nearest?.distance <= 220000 ? nearest.city : null;
+  }
+
+  function applyAutomaticMapLevel(map, nextZoom) {
+    const context = mapContextRef.current;
+    if (nextZoom <= AUTO_COUNTRY_ZOOM) {
+      if (context.selectedProvince !== "全部" || context.activeCity) {
+        handlersRef.current.onResetMapContext?.();
+      }
+      return;
+    }
+    if (
+      nextZoom >= AUTO_PROVINCE_ZOOM &&
+      context.selectedProvince === "全部"
+    ) {
+      const province = provinceAtCenter(map.getCenter());
+      if (province) handlersRef.current.onProvinceSelect(province);
+      return;
+    }
+    if (
+      nextZoom >= AUTO_CITY_ZOOM &&
+      !context.activeCity &&
+      context.selectedProvince !== "全部"
+    ) {
+      const city = nearestCityToCenter(map.getCenter());
+      if (city) handlersRef.current.onCitySelect(city);
+      return;
+    }
+  }
 
   const provinceCounts = useMemo(
     () => countBy(provinceStudents, "province"),
@@ -400,6 +475,7 @@ export default function LeafletChinaMap({
       const nextZoom = map.getZoom();
       setZoom(nextZoom);
       onZoomChange?.(nextZoom);
+      applyAutomaticMapLevel(map, nextZoom);
       window.requestAnimationFrame(() => {
         declutterCityMarkers();
         declutterSchoolMarkers();
@@ -798,15 +874,18 @@ export default function LeafletChinaMap({
     }
 
     const compactAnchorX = 66;
+    const avatarPreset = avatarPresets.find(
+      (preset) => preset.id === selectedStudent.avatar,
+    );
     const icon = L.divIcon({
       className: `leaflet-selected-student-pin ${
         compactMarkers ? "is-compact" : ""
       }`,
       html: compactMarkers
-        ? `<span class="leaflet-selected-student-compact">${selectedStudent.name.slice(-1)}</span>`
+        ? `<span class="leaflet-selected-student-compact" style="background:${avatarPreset?.accent ?? "#4b7297"}">${selectedStudent.name.slice(-1)}</span>`
         : `
           <span class="leaflet-selected-student-card">
-            <i></i>
+            <i class="leaflet-selected-student-avatar" style="background:${avatarPreset?.background ?? "#dbe5ea"};color:${avatarPreset?.ink ?? "#2e4b65"}">${selectedStudent.name.slice(-1)}</i>
             <b>${selectedStudent.name}</b>
             <small>${selectedStudent.campus}</small>
           </span>
@@ -831,6 +910,7 @@ export default function LeafletChinaMap({
     );
     const element = marker.getElement();
     if (element) {
+      element.dataset.avatar = selectedStudent.avatar || "auto";
       element.setAttribute("role", "button");
       element.setAttribute(
         "aria-label",
@@ -842,6 +922,7 @@ export default function LeafletChinaMap({
     compactMarkers,
     selectedProvince,
     selectedStudent?.campus,
+    selectedStudent?.avatar,
     selectedStudent?.coordinates,
     selectedStudent?.id,
     selectedStudent?.name,
@@ -974,8 +1055,8 @@ export default function LeafletChinaMap({
         {activeCity
           ? "小点为校区位置 · 点击数字查看同学"
           : selectedProvince !== "全部"
-            ? "点击城市查看院校"
-            : "点击省份或滚轮放大"}
+            ? "放大进入城市 · 缩小返回全国"
+            : "放大地图自动进入省份"}
       </div>
 
       <div className="leaflet-attribution">地图 © 高德地图</div>

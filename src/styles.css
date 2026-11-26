@@ -980,13 +980,17 @@ select:focus-visible,
 }
 
 .leaflet-selected-student-card i {
-  width: 8px;
-  height: 8px;
+  display: grid;
+  width: 22px;
+  height: 22px;
   flex: 0 0 auto;
-  border: 2px solid #fff;
+  place-items: center;
+  border: 1px solid rgba(255, 253, 247, 0.92);
   border-radius: 50%;
-  background: var(--mineral);
-  box-shadow: 0 0 0 3px rgba(75, 114, 151, 0.18);
+  box-shadow: 0 1px 5px rgba(33, 48, 42, 0.18);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .leaflet-selected-student-card b {
@@ -2385,6 +2389,69 @@ select:focus-visible,
 
 .profile-field input[aria-invalid="true"] {
   border-color: var(--persimmon);
+}
+
+.profile-persona-section {
+  display: grid;
+  gap: 10px;
+  margin-top: 17px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.profile-persona-section h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 620;
+}
+
+.profile-persona-section p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.profile-persona-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.profile-persona-options button {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 3px 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: rgba(255, 253, 247, 0.46);
+  color: var(--muted);
+  font-size: 8.5px;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.profile-persona-options button:hover {
+  border-color: rgba(75, 114, 151, 0.35);
+  color: var(--ink);
+}
+
+.profile-persona-options button.is-active {
+  border-color: rgba(75, 114, 151, 0.48);
+  background: rgba(75, 114, 151, 0.1);
+  color: var(--mineral);
+}
+
+.profile-persona-options button > span:last-child {
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-location-fields {
@@ -4616,6 +4683,10 @@ select:focus-visible,
 
   .profile-editor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-persona-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .profile-field-wide {

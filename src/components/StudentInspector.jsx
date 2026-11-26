@@ -37,7 +37,7 @@ export default function StudentInspector({
       </div>
 
       <div className="student-identity">
-        <Avatar name={student.name} size={68} />
+        <Avatar name={student.name} avatarId={student.avatar} size={68} />
         <div>
           <h3>{student.name}</h3>
           <p className="student-school">{student.school}</p>
@@ -120,7 +120,7 @@ export default function StudentInspector({
                 key={peer.id}
                 onClick={() => onSelectStudent(peer.id)}
               >
-                <Avatar name={peer.name} size={36} />
+                <Avatar name={peer.name} avatarId={peer.avatar} size={36} />
                 <span>
                   <b>{peer.name}</b>
                   <small>{peer.city}</small>
@@ -148,7 +148,11 @@ export default function StudentInspector({
               key={suggestion.id}
               onClick={() => onSelectStudent(suggestion.id)}
             >
-              <Avatar name={suggestion.name} size={38} />
+              <Avatar
+                name={suggestion.name}
+                avatarId={suggestion.avatar}
+                size={38}
+              />
               <span>
                 <b>{suggestion.name}</b>
                 <small>{suggestion.school}</small>

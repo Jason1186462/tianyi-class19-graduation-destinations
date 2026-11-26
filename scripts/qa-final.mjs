@@ -472,11 +472,41 @@ if (
 ) {
   throw new Error(`Taizhou campus automatic location failed: ${JSON.stringify(shiCampus)}`);
 }
+const personaOption = editorPage
+  .locator(".profile-persona-options button")
+  .filter({ hasText: "星夜" });
+if (!(await personaOption.count())) {
+  throw new Error("The starry persona option is missing.");
+}
+await personaOption.click();
+await editorPage.waitForTimeout(200);
+const selectedPersona = await personaOption.getAttribute("class");
+if (!selectedPersona?.includes("is-active")) {
+  throw new Error("Persona selection did not become active.");
+}
 await editorPage.screenshot({
-  path: path.join(outputDir, "desktop-profile-shi-taizhou.png"),
+  path: path.join(outputDir, "desktop-profile-shi-persona.png"),
 });
 await editorPage.getByRole("button", { name: "保存个人资料", exact: true }).click();
 await editorPage.waitForTimeout(1100);
+const storedShiAvatar = await editorPage.evaluate(
+  () =>
+    JSON.parse(
+      window.localStorage.getItem("tianyi-graduation-profile-overrides-v1") ?? "{}",
+    )["35"]?.avatar,
+);
+const inspectorAvatarLabel = await editorPage
+  .locator(".student-inspector .avatar")
+  .first()
+  .getAttribute("aria-label");
+if (storedShiAvatar !== "starry" || !inspectorAvatarLabel?.includes("星夜")) {
+  throw new Error(
+    `Persona was not persisted or rendered: ${JSON.stringify({
+      storedShiAvatar,
+      inspectorAvatarLabel,
+    })}`,
+  );
+}
 const shiMapMarkerLabel =
   (await editorPage.locator(".leaflet-school-marker-tile.is-selected").getAttribute("aria-label")) ??
   "";
@@ -505,9 +535,14 @@ const reloadedShiPinLabel =
     .locator(".leaflet-selected-student-pin")
     .getAttribute("aria-label")) ?? "";
 const reloadedInspectorText = await editorPage.locator(".student-inspector").innerText();
+const reloadedShiAvatar =
+  (await editorPage
+    .locator(".leaflet-selected-student-pin")
+    .getAttribute("data-avatar")) ?? "";
 if (
   !reloadedShiPinLabel.includes("施翰尧") ||
   !reloadedShiPinLabel.includes("泰州校区") ||
+  reloadedShiAvatar !== "starry" ||
   !reloadedInspectorText.includes("施翰尧")
 ) {
   throw new Error("Selected Taizhou student was not restored after reload.");
@@ -600,6 +635,84 @@ await editorPage.screenshot({
 });
 await editorContext.close();
 
+const zoomContext = await browser.newContext({
+  viewport: { width: 1536, height: 1000 },
+  deviceScaleFactor: 1,
+});
+const zoomPage = await zoomContext.newPage();
+zoomPage.on("console", (message) => {
+  if (message.type() === "error" || message.type() === "warning") {
+    errors.push(`zoom ${message.type()}: ${message.text()}`);
+  }
+});
+zoomPage.on("pageerror", (error) => errors.push(`zoom pageerror: ${error.message}`));
+await zoomPage.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+await zoomPage.waitForTimeout(1400);
+const zoomState = () =>
+  zoomPage.evaluate(() => ({
+    zoom: Number.parseFloat(
+      document.querySelector(".leaflet-zoom-controls span")?.textContent ?? "0",
+    ),
+    breadcrumbs: [...document.querySelectorAll(".leaflet-breadcrumbs button")].map(
+      (element) => element.textContent.trim(),
+    ),
+    hasCityRail: Boolean(document.querySelector(".map-city-rail")),
+    activeCity: [
+      ...document.querySelectorAll(".map-city-rail .is-active"),
+    ].map((element) => element.innerText.replace(/\s+/g, " ").trim()),
+    hasCountryStrip: Boolean(document.querySelector(".recent-strip")),
+  }));
+const zoomIn = zoomPage.getByRole("button", { name: "放大地图" });
+const zoomOut = zoomPage.getByRole("button", { name: "缩小地图" });
+let automaticZoomLevels = await zoomState();
+for (
+  let index = 0;
+  index < 8 && automaticZoomLevels.breadcrumbs.length < 2;
+  index += 1
+) {
+  await zoomIn.click({ force: true });
+  await zoomPage.waitForTimeout(850);
+  automaticZoomLevels = await zoomState();
+}
+if (
+  automaticZoomLevels.breadcrumbs.length < 2 ||
+  !automaticZoomLevels.hasCityRail
+) {
+  throw new Error(`Zoom-in did not enter a province: ${JSON.stringify(automaticZoomLevels)}`);
+}
+for (
+  let index = 0;
+  index < 14 && automaticZoomLevels.activeCity.length === 0;
+  index += 1
+) {
+  await zoomIn.click({ force: true });
+  await zoomPage.waitForTimeout(500);
+  automaticZoomLevels = await zoomState();
+}
+if (automaticZoomLevels.activeCity.length === 0) {
+  throw new Error(`Zoom-in did not enter a city: ${JSON.stringify(automaticZoomLevels)}`);
+}
+for (
+  let index = 0;
+  index < 30 && automaticZoomLevels.zoom > 4.25;
+  index += 1
+) {
+  await zoomOut.click({ force: true });
+  await zoomPage.waitForTimeout(450);
+  automaticZoomLevels = await zoomState();
+}
+if (
+  automaticZoomLevels.zoom > 4.25 ||
+  automaticZoomLevels.breadcrumbs.length !== 1 ||
+  !automaticZoomLevels.hasCountryStrip
+) {
+  throw new Error(`Zoom-out did not return to country: ${JSON.stringify(automaticZoomLevels)}`);
+}
+await zoomPage.screenshot({
+  path: path.join(outputDir, "desktop-auto-zoom-country.png"),
+});
+await zoomContext.close();
+
 await writeFile(
   path.join(outputDir, "qa-report.json"),
   JSON.stringify(
@@ -611,6 +724,7 @@ await writeFile(
       profileName,
       cityResultText,
       focusedMapZoom,
+      automaticZoomLevels,
       tabletMetrics,
       narrowTabletMetrics,
       overlaps: {
@@ -634,6 +748,10 @@ await writeFile(
         unknownCampusBlocked: true,
         shiCampus,
         shiCampusIndexLabels,
+        selectedPersona,
+        storedShiAvatar,
+        inspectorAvatarLabel,
+        reloadedShiAvatar,
         shiMapMarkerLabel,
         shiCountryPinLabel,
         reloadedShiPinLabel,

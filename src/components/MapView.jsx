@@ -333,7 +333,11 @@ export default function MapView({
                 onOpenInspector();
               }}
             >
-              <Avatar name={student.name} size={42} />
+              <Avatar
+                name={student.name}
+                avatarId={student.avatar}
+                size={42}
+              />
               <span>
                 <b>{student.name}</b>
                 <small>{student.school}</small>

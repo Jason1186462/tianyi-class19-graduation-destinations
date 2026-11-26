@@ -141,6 +141,7 @@ export function createStudentProfiles(overrides = {}) {
       ...student,
       name: normalizeText(override.name) || student.name,
       major: normalizeText(override.major),
+      avatar: normalizeText(override.avatar),
       city: campusPreset?.city || normalizeText(override.city) || student.city,
       province:
         campusPreset?.province || normalizeText(override.province) || student.province,

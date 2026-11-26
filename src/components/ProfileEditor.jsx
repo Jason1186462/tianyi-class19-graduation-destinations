@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import Avatar, { avatarPresets } from "./Avatar";
 import CampusPickerMap from "./CampusPickerMap";
 import { CloseIcon, MapPinIcon, ResetIcon } from "./Icons";
 import { normalizeCoordinates, parseMapCoordinates } from "../lib/profiles";
@@ -13,6 +14,7 @@ export default function ProfileEditor({ student, onClose, onSave }) {
   const [form, setForm] = useState(() => ({
     name: student.name,
     major: student.major ?? "",
+    avatar: student.avatar ?? "",
     campus: student.campus,
     address: student.address,
     latitude: formatCoordinate(student.coordinates[0]),
@@ -149,6 +151,7 @@ export default function ProfileEditor({ student, onClose, onSave }) {
     onSave({
       name: form.name.trim(),
       major: form.major.trim(),
+      avatar: form.avatar,
       city: resolvedCity,
       province: resolvedProvince,
       campus: form.campus.trim() || student.defaultCampus,
@@ -225,6 +228,40 @@ export default function ProfileEditor({ student, onClose, onSave }) {
                   <input value={resolvedProvince} readOnly />
                 </label>
               </div>
+
+              <section className="profile-persona-section">
+                <div>
+                  <h3>班级形象</h3>
+                  <p>选择一个属于你的视觉形象，保存后会同步到地图、名录和个人主页。</p>
+                </div>
+                <div className="profile-persona-options">
+                  <button
+                    type="button"
+                    className={!form.avatar ? "is-active" : ""}
+                    onClick={() => updateField("avatar", "")}
+                    aria-pressed={!form.avatar}
+                  >
+                    <Avatar name={form.name || student.name} size={42} />
+                    <span>智能默认</span>
+                  </button>
+                  {avatarPresets.map((preset) => (
+                    <button
+                      type="button"
+                      className={form.avatar === preset.id ? "is-active" : ""}
+                      onClick={() => updateField("avatar", preset.id)}
+                      aria-pressed={form.avatar === preset.id}
+                      key={preset.id}
+                    >
+                      <Avatar
+                        name={form.name || student.name}
+                        avatarId={preset.id}
+                        size={42}
+                      />
+                      <span>{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
 
               <section className="profile-location-fields">
                 <div className="profile-location-heading">

@@ -6,6 +6,15 @@
   "profileName": "陶锦程",
   "cityResultText": "南京 · 20 人",
   "focusedMapZoom": 16,
+  "automaticZoomLevels": {
+    "zoom": 3.5,
+    "breadcrumbs": [
+      "全国"
+    ],
+    "hasCityRail": false,
+    "activeCity": [],
+    "hasCountryStrip": true
+  },
   "tabletMetrics": {
     "viewportWidth": 1024,
     "documentWidth": 1024,
@@ -59,6 +68,10 @@
       "泰州校区",
       "仙林校区"
     ],
+    "selectedPersona": "is-active",
+    "storedShiAvatar": "starry",
+    "inspectorAvatarLabel": "施翰尧的星夜形象",
+    "reloadedShiAvatar": "starry",
     "shiMapMarkerLabel": "南京中医药大学，泰州校区，1 位同学",
     "shiCountryPinLabel": "施翰尧，南京中医药大学，泰州校区",
     "reloadedShiPinLabel": "施翰尧，南京中医药大学，泰州校区",
@@ -68,6 +81,14 @@
       "y": 600.4375,
       "width": 59,
       "height": 28
+    },
+    "compactPinInsideMap": true,
+    "mobileInspectorLayering": {
+      "inspectorZ": 650,
+      "zoomZ": 500,
+      "topElementAtInspector": "inspector-heading",
+      "documentWidth": 320,
+      "viewportWidth": 320
     },
     "mapUpdated": "扬州大学，扬子津校区，1 位同学",
     "autoLockedAfterSave": true,
