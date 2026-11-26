@@ -4,6 +4,7 @@ import {
   ChartIcon,
   DownloadIcon,
   MapIcon,
+  PhotoIcon,
   PeopleIcon,
   SearchIcon,
 } from "./Icons";
@@ -12,6 +13,7 @@ const navItems = [
   { id: "map", label: "去向地图", Icon: MapIcon },
   { id: "directory", label: "同学名录", Icon: PeopleIcon },
   { id: "insights", label: "数据洞察", Icon: ChartIcon },
+  { id: "gallery", label: "会议相册", Icon: PhotoIcon },
 ];
 
 export default function AppHeader({

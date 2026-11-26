@@ -303,3 +303,46 @@ export function ChartIcon({ size = 20, className = "" }) {
     </svg>
   );
 }
+
+export function PhotoIcon({ size = 20, className = "" }) {
+  return (
+    <svg {...iconProps} width={size} height={size} className={className}>
+      <rect
+        x="3.8"
+        y="5.2"
+        width="16.4"
+        height="13.6"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <circle cx="9" cy="10" r="1.7" stroke="currentColor" strokeWidth="1.35" />
+      <path
+        d="m6.2 16 3.9-4 2.8 2.7 2.1-2 2.8 3.3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function MessageIcon({ size = 18, className = "" }) {
+  return (
+    <svg {...iconProps} width={size} height={size} className={className}>
+      <path
+        d="M5.2 5.3h13.6v10.2H9.3l-4.1 3V5.3Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.3 9h7.4M8.3 12.2h4.9"
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

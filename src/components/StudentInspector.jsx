@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   CloseIcon,
   MapPinIcon,
+  MessageIcon,
   PencilIcon,
 } from "./Icons";
 import {
@@ -19,6 +20,7 @@ export default function StudentInspector({
   onSelectStudent,
   onViewOnMap,
   onEdit,
+  onChat,
   className = "",
 }) {
   if (!student) return null;
@@ -167,6 +169,10 @@ export default function StudentInspector({
         <button type="button" className="edit-profile" onClick={() => onEdit(student)}>
           <PencilIcon size={16} />
           <span>编辑个人资料</span>
+        </button>
+        <button type="button" className="chat-profile" onClick={() => onChat(student)}>
+          <MessageIcon size={16} />
+          <span>私聊</span>
         </button>
         <button type="button" className="view-on-map" onClick={() => onViewOnMap(student)}>
           <MapPinIcon size={17} />

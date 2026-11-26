@@ -742,6 +742,106 @@ await zoomPage.screenshot({
 });
 await zoomContext.close();
 
+const featureContext = await browser.newContext({
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 1,
+  isMobile: true,
+  hasTouch: true,
+});
+const featurePage = await featureContext.newPage();
+featurePage.on("console", (message) => {
+  if (message.type() === "error" || message.type() === "warning") {
+    errors.push(`feature ${message.type()}: ${message.text()}`);
+  }
+});
+featurePage.on("pageerror", (error) =>
+  errors.push(`feature pageerror: ${error.message}`),
+);
+await featurePage.goto(baseUrl, {
+  waitUntil: "domcontentloaded",
+  timeout: 15000,
+});
+await featurePage.waitForTimeout(1100);
+await featurePage
+  .locator(".mobile-bottom-nav")
+  .getByRole("button", { name: /会议相册/ })
+  .click();
+await featurePage.waitForTimeout(650);
+const galleryMetrics = await featurePage.evaluate(() => ({
+  slides: document.querySelectorAll(".gallery-slide").length,
+  navItems: document.querySelectorAll(".mobile-bottom-nav button").length,
+  documentWidth: document.documentElement.scrollWidth,
+  viewportWidth: innerWidth,
+  caption: document.querySelector(".gallery-footer > span")?.textContent?.trim(),
+}));
+await featurePage.waitForTimeout(4700);
+const rotatedGalleryCaption = await featurePage
+  .locator(".gallery-footer > span")
+  .innerText();
+if (
+  galleryMetrics.slides < 5 ||
+  galleryMetrics.navItems !== 4 ||
+  galleryMetrics.documentWidth > galleryMetrics.viewportWidth ||
+  rotatedGalleryCaption === galleryMetrics.caption
+) {
+  throw new Error(
+    `Gallery validation failed: ${JSON.stringify({
+      galleryMetrics,
+      rotatedGalleryCaption,
+    })}`,
+  );
+}
+await featurePage.screenshot({
+  path: path.join(outputDir, "mobile-gallery.png"),
+});
+
+await featurePage
+  .locator(".mobile-bottom-nav")
+  .getByRole("button", { name: /同学名录/ })
+  .click();
+await featurePage.locator(".mobile-search-toggle").click();
+const featureSearch = featurePage.getByPlaceholder("搜索姓名或院校");
+await featureSearch.fill("施翰尧");
+await featureSearch.press("Enter");
+await featurePage.waitForTimeout(300);
+await featurePage.locator(".directory-mobile-row").first().click();
+await featurePage.waitForTimeout(450);
+await featurePage.locator(".chat-profile").click();
+await featurePage.waitForTimeout(350);
+const chatMetrics = await featurePage.evaluate(() => ({
+  note: Boolean(document.querySelector(".chat-mode-note")),
+  drawer: document.querySelector(".chat-drawer")?.getBoundingClientRect().toJSON(),
+  documentWidth: document.documentElement.scrollWidth,
+  viewportWidth: innerWidth,
+}));
+if (
+  !chatMetrics.note ||
+  chatMetrics.documentWidth > chatMetrics.viewportWidth
+) {
+  throw new Error(`Chat drawer validation failed: ${JSON.stringify(chatMetrics)}`);
+}
+await featurePage
+  .getByLabel("输入私聊消息")
+  .fill("毕业快乐，常联系！");
+await featurePage.getByRole("button", { name: "保存消息", exact: true }).click();
+await featurePage.waitForTimeout(250);
+const localChatState = await featurePage.evaluate(() => ({
+  visibleMessages: document.querySelectorAll(".chat-message").length,
+  storedMessages: JSON.parse(
+    window.localStorage.getItem("tianyi-graduation-local-chats-v1") ?? "{}",
+  )["35"]?.length,
+}));
+if (
+  localChatState.visibleMessages !== 1 ||
+  localChatState.storedMessages !== 1
+) {
+  throw new Error(`Local chat validation failed: ${JSON.stringify(localChatState)}`);
+}
+await featurePage.screenshot({
+  path: path.join(outputDir, "mobile-chat.png"),
+});
+await featureContext.close();
+
 if (errors.length) {
   throw new Error(`Runtime errors detected: ${JSON.stringify(errors, null, 2)}`);
 }
@@ -760,6 +860,10 @@ await writeFile(
       automaticProvinceState,
       automaticCityState,
       automaticZoomLevels,
+      galleryMetrics,
+      rotatedGalleryCaption,
+      chatMetrics,
+      localChatState,
       tabletMetrics,
       narrowTabletMetrics,
       overlaps: {

@@ -35,6 +35,33 @@
     "schoolMarkers": 0,
     "hasCountryStrip": true
   },
+  "galleryMetrics": {
+    "slides": 5,
+    "navItems": 4,
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "caption": "1 / 5 · 自动旋转"
+  },
+  "rotatedGalleryCaption": "2 / 5 · 自动旋转",
+  "chatMetrics": {
+    "note": true,
+    "drawer": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844,
+      "top": 0,
+      "right": 390,
+      "bottom": 844,
+      "left": 0
+    },
+    "documentWidth": 390,
+    "viewportWidth": 390
+  },
+  "localChatState": {
+    "visibleMessages": 1,
+    "storedMessages": 1
+  },
   "tabletMetrics": {
     "viewportWidth": 1024,
     "documentWidth": 1024,

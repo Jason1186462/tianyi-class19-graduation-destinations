@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppHeader, { MobileBottomNav } from "./components/AppHeader";
+import ChatDrawer from "./components/ChatDrawer";
 import DirectoryView from "./components/DirectoryView";
+import GalleryView from "./components/GalleryView";
 import InsightsView from "./components/InsightsView";
 import MapView from "./components/MapView";
 import ProfileEditor from "./components/ProfileEditor";
@@ -38,6 +40,7 @@ export default function App() {
   const [mapFocusRequest, setMapFocusRequest] = useState(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [editingStudentId, setEditingStudentId] = useState(null);
+  const [chatStudentId, setChatStudentId] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
   const students = useMemo(
@@ -49,6 +52,7 @@ export default function App() {
     [selectedStudentId, students],
   );
   const editingStudent = students.find((student) => student.id === editingStudentId);
+  const chatStudent = students.find((student) => student.id === chatStudentId);
 
   useEffect(() => {
     if (!toastMessage) return undefined;
@@ -67,6 +71,7 @@ export default function App() {
   const changeView = useCallback((nextView) => {
     setActiveView(nextView);
     setInspectorOpen(false);
+    setChatStudentId(null);
   }, []);
 
   function handleGlobalSearch(query) {
@@ -163,6 +168,11 @@ export default function App() {
         setSelectedStudentId(student.id);
         setEditingStudentId(student.id);
       }}
+      onChat={(student) => {
+        setSelectedStudentId(student.id);
+        setInspectorOpen(false);
+        setChatStudentId(student.id);
+      }}
     />
   );
 
@@ -220,6 +230,8 @@ export default function App() {
         {activeView === "insights" && (
           <InsightsView students={students} onOpenSchool={handleOpenSchool} />
         )}
+
+        {activeView === "gallery" && <GalleryView />}
       </div>
 
       {inspectorOpen && (
@@ -236,6 +248,13 @@ export default function App() {
           student={editingStudent}
           onClose={() => setEditingStudentId(null)}
           onSave={handleProfileSave}
+        />
+      )}
+
+      {chatStudent && (
+        <ChatDrawer
+          student={chatStudent}
+          onClose={() => setChatStudentId(null)}
         />
       )}
 
