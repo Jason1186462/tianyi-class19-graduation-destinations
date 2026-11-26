@@ -379,7 +379,10 @@ if (await editorPage.getByLabel("地图链接或坐标").inputValue()) {
 await editorPage.getByLabel("个人寄语（选填）").fill("愿我们各自努力，顶峰相见。");
 await editorPage.screenshot({ path: path.join(outputDir, "desktop-profile-editor-filled.png") });
 await saveProfileButton.click();
-await editorPage.waitForTimeout(1600);
+await editorPage.waitForTimeout(450);
+await editorPage
+  .locator(".leaflet-school-marker-tile.is-selected")
+  .waitFor({ state: "visible", timeout: 3500 });
 
 if (await editorPage.locator(".profile-editor-dialog").count()) {
   throw new Error("Profile editor did not close after saving.");
@@ -770,17 +773,23 @@ await featurePage.waitForTimeout(650);
 const galleryMetrics = await featurePage.evaluate(() => ({
   slides: document.querySelectorAll(".gallery-slide").length,
   navItems: document.querySelectorAll(".mobile-bottom-nav button").length,
+  roofLights: document.querySelectorAll(".gallery-roof i").length,
+  hasStageBase: Boolean(document.querySelector(".gallery-stage-base")),
+  headerBackground: getComputedStyle(document.querySelector(".app-header")).backgroundColor,
   documentWidth: document.documentElement.scrollWidth,
   viewportWidth: innerWidth,
-  caption: document.querySelector(".gallery-footer > span")?.textContent?.trim(),
+  caption: document.querySelector(".gallery-current")?.textContent?.trim(),
 }));
 await featurePage.waitForTimeout(4700);
 const rotatedGalleryCaption = await featurePage
-  .locator(".gallery-footer > span")
+  .locator(".gallery-current")
   .innerText();
 if (
-  galleryMetrics.slides < 5 ||
+  galleryMetrics.slides < 7 ||
   galleryMetrics.navItems !== 4 ||
+  galleryMetrics.roofLights < 8 ||
+  !galleryMetrics.hasStageBase ||
+  !galleryMetrics.headerBackground.startsWith("rgba(4, 17, 12") ||
   galleryMetrics.documentWidth > galleryMetrics.viewportWidth ||
   rotatedGalleryCaption === galleryMetrics.caption
 ) {

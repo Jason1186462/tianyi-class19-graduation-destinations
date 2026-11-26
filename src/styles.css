@@ -2533,6 +2533,437 @@ select:focus-visible,
   background: var(--sage);
 }
 
+/* Concert-style gallery */
+
+.app-shell.is-gallery-view {
+  background: #06120e;
+}
+
+.is-gallery-view .app-header {
+  border-bottom-color: rgba(147, 184, 155, 0.2);
+  background: rgba(4, 17, 12, 0.94);
+  color: #f5f0e2;
+  backdrop-filter: blur(18px);
+}
+
+.is-gallery-view .brand-copy strong,
+.is-gallery-view .brand-copy span,
+.is-gallery-view .top-nav-item,
+.is-gallery-view .icon-button {
+  color: rgba(245, 240, 226, 0.74);
+}
+
+.is-gallery-view .top-nav-item.is-active {
+  color: #f5f0e2;
+}
+
+.is-gallery-view .top-nav-item.is-active::after {
+  background: #d8b778;
+}
+
+.is-gallery-view .brand-mark {
+  color: #8fb697;
+}
+
+.is-gallery-view .header-search {
+  border-color: rgba(143, 182, 151, 0.32);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(245, 240, 226, 0.68);
+}
+
+.is-gallery-view .header-search input {
+  color: #f5f0e2;
+}
+
+.is-gallery-view .header-search input::placeholder {
+  color: rgba(245, 240, 226, 0.44);
+}
+
+.is-gallery-view .export-button {
+  border-color: rgba(216, 183, 120, 0.45);
+  background: #d8b778;
+  color: #102019;
+}
+
+.is-gallery-view .app-body {
+  background: #06120e;
+}
+
+.concert-gallery {
+  position: relative;
+  padding-top: 18px;
+  color: #f5f0e2;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(32, 76, 54, 0.72), transparent 44%),
+    radial-gradient(circle at 7% 26%, rgba(216, 183, 120, 0.14), transparent 23%),
+    radial-gradient(circle at 93% 26%, rgba(143, 182, 151, 0.16), transparent 24%),
+    linear-gradient(180deg, #04100c 0%, #071811 62%, #020806 100%);
+}
+
+.concert-gallery::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(113deg, transparent 4%, rgba(113, 163, 122, 0.1) 22%, transparent 38%),
+    linear-gradient(247deg, transparent 4%, rgba(216, 183, 120, 0.09) 22%, transparent 38%);
+  content: "";
+  pointer-events: none;
+}
+
+.concert-gallery .gallery-heading {
+  position: relative;
+  z-index: 40;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.concert-gallery .gallery-heading-copy {
+  display: grid;
+  justify-items: center;
+}
+
+.concert-gallery .gallery-heading h1 {
+  margin: 0;
+  color: #f7f1e3;
+  font-size: clamp(42px, 5.2vw, 76px);
+  font-weight: 520;
+  letter-spacing: -0.07em;
+  line-height: 0.98;
+  text-shadow: 0 8px 34px rgba(0, 0, 0, 0.36);
+}
+
+.concert-gallery .gallery-heading p {
+  margin-top: 11px;
+  color: rgba(238, 233, 218, 0.72);
+  font-size: 12px;
+}
+
+.concert-gallery .gallery-actions {
+  align-items: center;
+}
+
+.concert-gallery .gallery-actions small {
+  color: rgba(238, 233, 218, 0.42);
+  text-align: center;
+}
+
+.concert-gallery .gallery-upload {
+  min-height: 43px;
+  padding: 0 22px;
+  border-color: rgba(143, 182, 151, 0.5);
+  background: linear-gradient(180deg, #89b394, #78a184);
+  box-shadow:
+    0 8px 30px rgba(91, 139, 103, 0.24),
+    inset 0 1px rgba(255, 255, 255, 0.28);
+  color: #0d2118;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.concert-gallery .gallery-showcase {
+  min-height: 430px;
+  margin-top: -4px;
+  perspective: 1500px;
+  perspective-origin: 50% 48%;
+}
+
+.concert-gallery .gallery-slides {
+  top: 3%;
+  left: 50%;
+  width: min(54vw, 660px);
+  height: 80%;
+  transform: translateX(-50%);
+  transform-style: preserve-3d;
+}
+
+.concert-gallery .gallery-slide {
+  width: min(42vw, 560px);
+  height: min(39vh, 370px);
+  border: 1px solid rgba(205, 224, 207, 0.28);
+  border-radius: 4px;
+  background: #091711;
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.48),
+    0 0 0 6px rgba(8, 20, 15, 0.74),
+    0 0 28px rgba(121, 181, 138, 0.17);
+  backface-visibility: hidden;
+  transition:
+    transform 680ms cubic-bezier(0.2, 0.72, 0.22, 1),
+    opacity 420ms ease,
+    filter 420ms ease;
+}
+
+.concert-gallery .gallery-slide:not(.is-active) {
+  filter: brightness(0.55) saturate(0.7);
+}
+
+.concert-gallery .gallery-art {
+  inset: 0;
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+}
+
+.concert-gallery .gallery-art::before {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, transparent 55%, rgba(4, 12, 8, 0.68)),
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035) 0,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  content: "";
+}
+
+.concert-gallery .gallery-art::after {
+  display: none;
+}
+
+.concert-gallery .gallery-art i {
+  display: none;
+}
+
+.concert-gallery .gallery-caption {
+  padding: 52px 18px 16px;
+  background: linear-gradient(transparent, rgba(2, 10, 6, 0.88));
+}
+
+.concert-gallery .gallery-caption small {
+  color: #d8b778;
+}
+
+.concert-gallery .gallery-caption strong {
+  color: #fffdf9;
+  font-size: 20px;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.62);
+}
+
+.concert-gallery .gallery-caption em {
+  color: rgba(255, 253, 249, 0.66);
+}
+
+.concert-beam {
+  position: absolute;
+  z-index: 2;
+  top: -80px;
+  width: 42%;
+  height: 78%;
+  opacity: 0.58;
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.concert-beam.is-left {
+  left: -8%;
+  background: linear-gradient(180deg, rgba(126, 183, 143, 0.32), transparent 76%);
+  transform: rotate(-11deg);
+}
+
+.concert-beam.is-right {
+  right: -8%;
+  background: linear-gradient(180deg, rgba(216, 183, 120, 0.28), transparent 76%);
+  transform: rotate(11deg);
+}
+
+.gallery-roof {
+  position: absolute;
+  z-index: 25;
+  top: 7%;
+  left: 50%;
+  display: flex;
+  width: min(69vw, 1000px);
+  height: 34px;
+  align-items: flex-start;
+  justify-content: space-around;
+  border-top: 3px solid #18271f;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(180deg, #2f3d35, #0b1611 56%, transparent);
+  box-shadow: 0 -8px 23px rgba(158, 195, 167, 0.13);
+  transform: translateX(-50%) perspective(900px) rotateX(34deg);
+  pointer-events: none;
+}
+
+.gallery-roof i {
+  width: 8px;
+  height: 5px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: #e2c17e;
+  box-shadow: 0 0 12px rgba(226, 193, 126, 0.56);
+}
+
+.gallery-stage-base {
+  position: absolute;
+  z-index: 1;
+  bottom: 4%;
+  left: 50%;
+  width: min(74vw, 1080px);
+  height: 148px;
+  transform: translateX(-50%) perspective(560px) rotateX(67deg);
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.gallery-stage-base::before {
+  position: absolute;
+  inset: 14% 2%;
+  border: 2px solid rgba(216, 183, 120, 0.44);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse, rgba(34, 64, 48, 0.82), rgba(3, 10, 7, 0.98) 68%);
+  box-shadow:
+    0 0 34px rgba(216, 183, 120, 0.16),
+    inset 0 0 42px rgba(84, 138, 100, 0.16);
+  content: "";
+}
+
+.gallery-stage-base span {
+  position: absolute;
+  inset: 7% 0;
+  border: 1px solid rgba(143, 182, 151, 0.25);
+  border-radius: 50%;
+}
+
+.gallery-stage-base span:nth-child(2) {
+  inset: -2% 8%;
+  border-color: rgba(216, 183, 120, 0.19);
+}
+
+.gallery-stage-base span:nth-child(3) {
+  inset: 22% 14%;
+  border-color: rgba(255, 253, 247, 0.12);
+}
+
+.concert-gallery .gallery-arrow {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(175, 200, 180, 0.34);
+  background: rgba(9, 25, 18, 0.68);
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.32),
+    inset 0 0 18px rgba(143, 182, 151, 0.07);
+  color: #dbeadd;
+  backdrop-filter: blur(8px);
+}
+
+.concert-gallery .gallery-arrow.is-prev {
+  left: 2%;
+}
+
+.concert-gallery .gallery-arrow.is-next {
+  right: 2%;
+}
+
+.concert-gallery .gallery-footer {
+  position: relative;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding-top: 0;
+}
+
+.concert-controls {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 7px 4px 5px;
+  border: 1px solid rgba(159, 195, 167, 0.28);
+  border-radius: 999px;
+  background: rgba(7, 21, 15, 0.86);
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+}
+
+.gallery-play-toggle {
+  display: grid;
+  width: 40px;
+  height: 34px;
+  place-items: center;
+  border-right: 1px solid rgba(159, 195, 167, 0.24);
+  border-radius: 999px 0 0 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #dcebdd;
+}
+
+.concert-controls .gallery-dots {
+  align-items: center;
+  gap: 5px;
+}
+
+.concert-controls .gallery-dots button {
+  width: 5px;
+  height: 5px;
+  background: rgba(221, 235, 224, 0.22);
+}
+
+.concert-controls .gallery-dots button.is-active {
+  width: 7px;
+  height: 7px;
+  background: #e2c17e;
+  box-shadow: 0 0 8px rgba(226, 193, 126, 0.55);
+}
+
+.gallery-current {
+  min-width: 170px;
+  color: rgba(245, 240, 226, 0.82);
+  font-size: 9.5px;
+  text-align: center;
+}
+
+.gallery-autoplay {
+  display: inline-flex;
+  min-width: 108px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(159, 195, 167, 0.25);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(225, 237, 227, 0.62);
+  font-size: 9px;
+}
+
+.gallery-autoplay i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(225, 237, 227, 0.34);
+}
+
+.gallery-autoplay.is-active {
+  border-color: rgba(143, 182, 151, 0.48);
+  color: #dcebdd;
+  box-shadow: inset 0 0 15px rgba(143, 182, 151, 0.08);
+}
+
+.gallery-autoplay.is-active i {
+  background: #8fb697;
+  box-shadow: 0 0 10px rgba(143, 182, 151, 0.7);
+}
+
+.gallery-upload-status {
+  position: absolute;
+  right: 2%;
+  bottom: 5px;
+  color: rgba(238, 233, 218, 0.34);
+  font-size: 8px;
+}
+
 /* Local chat preview */
 
 .chat-backdrop {
@@ -5338,6 +5769,128 @@ select:focus-visible,
 
   .gallery-footer {
     margin-top: 8px;
+  }
+
+  .is-gallery-view .mobile-bottom-nav {
+    border-top-color: rgba(143, 182, 151, 0.2);
+    background: rgba(4, 17, 12, 0.96);
+  }
+
+  .is-gallery-view .mobile-bottom-nav button {
+    color: rgba(238, 233, 218, 0.45);
+  }
+
+  .is-gallery-view .mobile-bottom-nav button.is-active {
+    color: #f5f0e2;
+  }
+
+  .concert-gallery {
+    padding-top: 13px;
+  }
+
+  .concert-gallery .gallery-heading {
+    align-items: center;
+    text-align: center;
+  }
+
+  .concert-gallery .gallery-heading h1 {
+    font-size: 34px;
+  }
+
+  .concert-gallery .gallery-heading p {
+    max-width: 280px;
+    margin-top: 8px;
+  }
+
+  .concert-gallery .gallery-actions {
+    align-items: center;
+  }
+
+  .concert-gallery .gallery-actions small {
+    max-width: 260px;
+    text-align: center;
+  }
+
+  .concert-gallery .gallery-showcase {
+    min-height: 430px;
+    flex: 0 0 430px;
+    margin-top: 0;
+  }
+
+  .concert-gallery .gallery-slides {
+    top: 2%;
+    width: 82vw;
+    height: 82%;
+  }
+
+  .concert-gallery .gallery-slide {
+    width: 70vw;
+    height: min(39vh, 300px);
+    border-radius: 4px;
+  }
+
+  .concert-gallery .gallery-caption {
+    padding: 38px 14px 13px;
+  }
+
+  .concert-gallery .gallery-caption strong {
+    font-size: 18px;
+  }
+
+  .gallery-roof {
+    top: 9%;
+    width: 94vw;
+  }
+
+  .gallery-stage-base {
+    bottom: -22px;
+    width: 104vw;
+    height: 92px;
+  }
+
+  .concert-gallery .gallery-arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .concert-gallery .gallery-arrow.is-prev {
+    left: 1%;
+  }
+
+  .concert-gallery .gallery-arrow.is-next {
+    right: 1%;
+  }
+
+  .concert-gallery .gallery-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 8px;
+  }
+
+  .concert-controls {
+    width: calc(100vw - 28px);
+    max-width: 390px;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .gallery-current {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    font-size: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .gallery-autoplay {
+    min-width: 82px;
+    font-size: 8px;
+  }
+
+  .gallery-upload-status {
+    display: none;
   }
 
   .chat-backdrop {

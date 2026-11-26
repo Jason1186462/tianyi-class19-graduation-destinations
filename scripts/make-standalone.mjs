@@ -15,11 +15,16 @@ if (!scriptMatch || !styleMatch) {
   throw new Error("Built index.html does not contain the expected JavaScript and CSS assets.");
 }
 
-const [script, style, favicon] = await Promise.all([
+const [script, style, favicon, memoryImage] = await Promise.all([
   readFile(path.join(distDir, scriptMatch[1]), "utf8"),
   readFile(path.join(distDir, styleMatch[1]), "utf8"),
   readFile(path.join(distDir, "favicon.svg"), "utf8"),
+  readFile(path.join(distDir, "memory-triptych.png")),
 ]);
+const memoryImageDataUrl = `data:image/png;base64,${memoryImage.toString("base64")}`;
+const standaloneScript = script
+  .replaceAll("./memory-triptych.png", memoryImageDataUrl)
+  .replaceAll("memory-triptych.png", memoryImageDataUrl);
 
 html = html
   .replace(
@@ -34,7 +39,7 @@ html = html
   .replace(
     scriptMatch[0],
     () =>
-      `<script type="module">${script.replaceAll("</script", "<\\/script")}</script>`,
+      `<script type="module">${standaloneScript.replaceAll("</script", "<\\/script")}</script>`,
   );
 
 await writeFile(path.join(distDir, "standalone.html"), html, "utf8");

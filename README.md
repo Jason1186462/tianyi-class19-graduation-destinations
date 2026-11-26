@@ -99,7 +99,7 @@ npm run verify:data
 - 同学名录：姓名/院校全局搜索、省份与院校筛选、排序、分页和详情联动。
 - 数据洞察：省份分布、城市集中度、院校集中度、同校同行与最远去向。
 - 学生主页：院校、校区、地址、坐标、城市、省份、同校伙伴和从无锡出发的近似距离。
-- 高中会议相册：3D 旋转式记忆长廊，支持自动轮播、手动切换和本机添加照片。
+- 高中会议相册：演唱会式圆柱 LED 记忆墙，包含 7 个环绕屏幕、舞台顶棚灯、聚光光束、底座灯环、自动巡演、播放/暂停和本机添加照片。
 - 私聊预览：在同学主页打开一对一消息抽屉，消息保存在当前浏览器，便于静态网站展示。
 - 纪念册导出：下载一份包含全部 55 位同学的响应式 HTML 纪念册，可直接打印。
 
@@ -151,6 +151,10 @@ npm run qa:ui
 - `src/components/StudentInspector.jsx`：学生主页与同校伙伴。
 - `src/components/ProfileEditor.jsx`：姓名、专业、校区、地址和坐标编辑。
 - `src/components/CampusPickerMap.jsx`：可点击、可拖动的校区定位地图。
+- `src/components/GalleryView.jsx`：演唱会式圆柱相册与本地照片管理。
+- `src/components/ChatDrawer.jsx`：静态网站的本机私聊预览。
+- `public/memory-triptych.png`：可拆分为三块画面的示例校园记忆图。
+- `design/gallery-concert-concept.png`：相册视觉概念参考。
 - `src/lib/exportMemorial.js`：纪念册导出。
 - `scripts/qa-final.mjs`：桌面、平板、手机端自动验收。
 - `scripts/generate-campus-presets.mjs`：需要时重新生成离线校区索引。

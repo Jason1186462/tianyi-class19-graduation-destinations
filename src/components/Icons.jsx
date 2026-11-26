@@ -346,3 +346,19 @@ export function MessageIcon({ size = 18, className = "" }) {
     </svg>
   );
 }
+
+export function PlayIcon({ size = 16, className = "" }) {
+  return (
+    <svg {...iconProps} width={size} height={size} className={className}>
+      <path d="m8 5.5 10 6.5-10 6.5v-13Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function PauseIcon({ size = 16, className = "" }) {
+  return (
+    <svg {...iconProps} width={size} height={size} className={className}>
+      <path d="M8 5.5v13M16 5.5v13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}

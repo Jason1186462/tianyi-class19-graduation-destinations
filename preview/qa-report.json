@@ -36,13 +36,16 @@
     "hasCountryStrip": true
   },
   "galleryMetrics": {
-    "slides": 5,
+    "slides": 7,
     "navItems": 4,
+    "roofLights": 12,
+    "hasStageBase": true,
+    "headerBackground": "rgba(4, 17, 12, 0.94)",
     "documentWidth": 390,
     "viewportWidth": 390,
-    "caption": "1 / 5 · 自动旋转"
+    "caption": "1 / 7 · 高中会议影像"
   },
-  "rotatedGalleryCaption": "2 / 5 · 自动旋转",
+  "rotatedGalleryCaption": "2 / 7 · 主题班会",
   "chatMetrics": {
     "note": true,
     "drawer": {

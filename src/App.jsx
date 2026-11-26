@@ -177,7 +177,7 @@ export default function App() {
   );
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${activeView === "gallery" ? "is-gallery-view" : ""}`}>
       <AppHeader
         activeView={activeView}
         onViewChange={changeView}

@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  PauseIcon,
   PhotoIcon,
+  PlayIcon,
 } from "./Icons";
 
 const GALLERY_STORAGE_KEY = "tianyi-graduation-gallery-v1";
+const MEMORY_TRIPTYCH_URL = `${import.meta.env.BASE_URL}memory-triptych.png`;
 
 const placeholderMoments = [
   {
@@ -15,6 +18,8 @@ const placeholderMoments = [
     title: "高中会议影像",
     caption: "为真实会议照片预留的第一张记忆卡片",
     theme: "sage",
+    imagePosition: "0% 50%",
+    sample: true,
   },
   {
     id: "meeting-02",
@@ -23,6 +28,8 @@ const placeholderMoments = [
     title: "主题班会",
     caption: "可放入誓师、班会或年级大会照片",
     theme: "sand",
+    imagePosition: "50% 50%",
+    sample: true,
   },
   {
     id: "meeting-03",
@@ -31,6 +38,8 @@ const placeholderMoments = [
     title: "志愿与未来",
     caption: "记录专业选择、志愿填报和答疑现场",
     theme: "blue",
+    imagePosition: "100% 50%",
+    sample: true,
   },
   {
     id: "meeting-04",
@@ -39,6 +48,8 @@ const placeholderMoments = [
     title: "班级合影",
     caption: "可放入毕业照、班级合影和活动照片",
     theme: "rose",
+    imagePosition: "50% 50%",
+    sample: true,
   },
   {
     id: "meeting-05",
@@ -47,6 +58,28 @@ const placeholderMoments = [
     title: "教室与走廊",
     caption: "把普通的一天也留在这段时间里",
     theme: "olive",
+    imagePosition: "0% 50%",
+    sample: true,
+  },
+  {
+    id: "meeting-06",
+    index: "06",
+    season: "高三 · 夜读",
+    title: "晚自习的灯",
+    caption: "灯亮着的时候，未来也在慢慢靠近",
+    theme: "blue",
+    imagePosition: "100% 50%",
+    sample: true,
+  },
+  {
+    id: "meeting-07",
+    index: "07",
+    season: "高三 · 出发",
+    title: "出发以前",
+    caption: "把最后一段校园时光留在环形屏幕上",
+    theme: "sand",
+    imagePosition: "50% 50%",
+    sample: true,
   },
 ];
 
@@ -92,7 +125,8 @@ function compressImage(file) {
 export default function GalleryView() {
   const [localPhotos, setLocalPhotos] = useState(readLocalPhotos);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [hoverPaused, setHoverPaused] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const fileInputRef = useRef(null);
 
@@ -113,12 +147,12 @@ export default function GalleryView() {
   }, [localPhotos]);
 
   useEffect(() => {
-    if (paused || slides.length < 2) return undefined;
+    if (!autoPlay || hoverPaused || slides.length < 2) return undefined;
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % slides.length);
     }, 4500);
     return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
+  }, [autoPlay, hoverPaused, slides.length]);
 
   useEffect(() => {
     if (activeIndex >= slides.length) setActiveIndex(0);
@@ -142,6 +176,7 @@ export default function GalleryView() {
       setLocalPhotos((current) => [...photos, ...current].slice(0, 8));
       setUploadMessage(`已添加 ${photos.length} 张本机照片`);
       setActiveIndex(0);
+      setAutoPlay(true);
     } catch (error) {
       setUploadMessage(error.message);
     }
@@ -151,14 +186,12 @@ export default function GalleryView() {
     setActiveIndex(
       (current) => (current + direction + slides.length) % slides.length,
     );
-    setPaused(true);
   }
 
   return (
-    <main className="gallery-main">
+    <main className="gallery-main concert-gallery">
       <header className="gallery-heading">
-        <div>
-          <span className="gallery-eyebrow">MEMORY ROTATION · 2026</span>
+        <div className="gallery-heading-copy">
           <h1>高中会议相册</h1>
           <p>把班会、誓师、志愿填报与合影放进一条旋转的记忆长廊。</p>
         </div>
@@ -178,25 +211,32 @@ export default function GalleryView() {
             onClick={() => fileInputRef.current?.click()}
           >
             <PhotoIcon size={17} />
-            添加本机照片
+            添加会议照片
           </button>
-          <small>本机添加的照片仅保存在当前浏览器</small>
+          <small>本机添加，刷新后保留；公开照片请提交到仓库</small>
         </div>
       </header>
 
       <section
-        className="gallery-showcase"
+        className="gallery-showcase concert-stage"
         aria-label="高中会议照片旋转展示"
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
+        onPointerEnter={() => setHoverPaused(true)}
+        onPointerLeave={() => setHoverPaused(false)}
       >
-        <div className="gallery-orbit" aria-hidden="true" />
+        <div className="concert-beam is-left" aria-hidden="true" />
+        <div className="concert-beam is-right" aria-hidden="true" />
+        <div className="gallery-roof" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <i key={index} />
+          ))}
+        </div>
         <div className="gallery-slides">
           {slides.map((slide, index) => {
             const count = slides.length;
-            const distance =
-              ((index - activeIndex + count + Math.floor(count / 2)) % count) -
-              Math.floor(count / 2);
+            let distance = index - activeIndex;
+            if (distance > count / 2) distance -= count;
+            if (distance < -count / 2) distance += count;
+            const angle = (distance * 360) / count;
             const absoluteDistance = Math.abs(distance);
             return (
               <button
@@ -211,13 +251,15 @@ export default function GalleryView() {
                 style={{
                   "--slide-offset": distance,
                   "--slide-depth": absoluteDistance,
-                  transform: `translate(-50%, -50%) translateX(${distance * 46}%) translateZ(${distance === 0 ? 90 : -absoluteDistance * 80}px) rotateY(${distance * -17}deg) scale(${distance === 0 ? 1 : Math.max(0.68, 0.9 - absoluteDistance * 0.07)})`,
-                  opacity: absoluteDistance > 2 ? 0 : 1 - absoluteDistance * 0.22,
+                  transform: `translate(-50%, -50%) rotateY(${angle}deg) translateZ(430px)`,
+                  opacity:
+                    absoluteDistance > 2
+                      ? 0
+                      : 1 - absoluteDistance * 0.16,
                   zIndex: 20 - absoluteDistance,
                 }}
                 onClick={() => {
                   setActiveIndex(index);
-                  setPaused(true);
                 }}
                 aria-label={`${slide.title}，${slide.caption}`}
                 tabIndex={absoluteDistance <= 1 ? 0 : -1}
@@ -226,14 +268,19 @@ export default function GalleryView() {
                 {slide.src ? (
                   <img src={slide.src} alt={slide.title} />
                 ) : (
-                  <span className="gallery-art" aria-hidden="true">
+                  <span
+                    className="gallery-art"
+                    style={{
+                      backgroundImage: `url("${MEMORY_TRIPTYCH_URL}")`,
+                      backgroundPosition: slide.imagePosition,
+                    }}
+                    aria-hidden="true"
+                  >
                     <i>{slide.index}</i>
-                    <b />
-                    <b />
                   </span>
                 )}
                 <span className="gallery-caption">
-                  <small>{slide.season}</small>
+                  <small>{slide.sample ? "示例影像" : slide.season}</small>
                   <strong>{slide.title}</strong>
                   <em>{slide.caption}</em>
                 </span>
@@ -258,25 +305,50 @@ export default function GalleryView() {
         >
           <ChevronRightIcon size={20} />
         </button>
+        <div className="gallery-stage-base" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
       </section>
 
       <footer className="gallery-footer">
-        <div className="gallery-dots" aria-label="照片索引">
-          {slides.map((slide, index) => (
-            <button
-              type="button"
-              className={activeIndex === index ? "is-active" : ""}
-              onClick={() => {
-                setActiveIndex(index);
-                setPaused(true);
-              }}
-              aria-label={`查看第 ${index + 1} 张：${slide.title}`}
-              aria-current={activeIndex === index ? "true" : undefined}
-              key={slide.id}
-            />
-          ))}
+        <div className="concert-controls">
+          <button
+            type="button"
+            className="gallery-play-toggle"
+            onClick={() => setAutoPlay((playing) => !playing)}
+            aria-label={autoPlay ? "暂停自动巡演" : "开始自动巡演"}
+          >
+            {autoPlay ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+          </button>
+          <div className="gallery-dots" aria-label="照片索引">
+            {slides.map((slide, index) => (
+              <button
+                type="button"
+                className={activeIndex === index ? "is-active" : ""}
+                onClick={() => setActiveIndex(index)}
+                aria-label={`查看第 ${index + 1} 张：${slide.title}`}
+                aria-current={activeIndex === index ? "true" : undefined}
+                key={slide.id}
+              />
+            ))}
+          </div>
+          <span className="gallery-current">
+            {activeIndex + 1} / {slides.length} · {slides[activeIndex]?.title}
+          </span>
+          <button
+            type="button"
+            className={`gallery-autoplay ${autoPlay ? "is-active" : ""}`}
+            onClick={() => setAutoPlay((playing) => !playing)}
+          >
+            <i />
+            自动巡演
+          </button>
         </div>
-        <span>{uploadMessage || `${activeIndex + 1} / ${slides.length} · 自动旋转`}</span>
+        <span className="gallery-upload-status">
+          {uploadMessage || "示例影像可通过上传按钮替换"}
+        </span>
       </footer>
     </main>
   );
